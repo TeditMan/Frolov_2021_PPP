@@ -1,28 +1,38 @@
-import pygame
+import numpy as np
+import pygame as pg
 from pygame.draw import *
-
-pygame.init()
+pg.init()
 
 FPS = 30
-screen = pygame.display.set_mode((400, 400))
+screen = pg.display.set_mode((600, 600))
+screen.fill((255, 255, 255))
 
-rect(screen, (255, 0, 255), (100, 100, 200, 200))
-rect(screen, (0, 0, 255), (100, 100, 200, 200), 5)
-polygon(screen, (255, 255, 0), [(100,100), (200,50),
-                               (300,100), (100,100)])
-polygon(screen, (0, 0, 255), [(100,100), (200,50),
-                               (300,100), (100,100)], 5)
-circle(screen, (0, 255, 0), (200, 175), 50)
-circle(screen, (255, 255, 255), (200, 175), 50, 5)
 
-pygame.display.update()
-clock = pygame.time.Clock()
+circle(screen, (255, 255, 0), (300, 300), 120)
+
+
+def rect_with_angle(x, y, a, b, aa):
+    aa = aa * np.pi / 180
+    polygon(screen, (0, 0, 0), [(x, y), (x + a * np.cos(aa), y + a * np.sin(aa)), (x + a * np.cos(aa) - b * np.sin(aa),
+                                y + a * np.sin(aa) + b * np.cos(aa)), (x - b * np.sin(aa), y + b * np.cos(aa)), (x, y)])
+
+
+rect_with_angle(390, 218, 15, 85, 70)
+rect_with_angle(290, 250, 15, 85, 120)
+circle(screen, (255, 0, 0), (250, 270), 20)
+circle(screen, (0, 0, 0), (250, 270), 8)
+circle(screen, (255, 0, 0), (350, 270), 20)
+circle(screen, (0, 0, 0), (350, 270), 8)
+rect(screen, (0, 0, 0), (235, 350, 135, 20))
+#
+pg.display.update()
+clock = pg.time.Clock()
 finished = False
-
 while not finished:
     clock.tick(FPS)
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
+    for event in pg.event.get():
+        if event.type == pg.QUIT:
             finished = True
 
-pygame.quit()
+pg.quit()
+#
