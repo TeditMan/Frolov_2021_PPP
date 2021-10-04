@@ -40,9 +40,37 @@ h1 = [(745, 112), (790, 150), (830, 140), (870, 160), (910, 145)]
 for i in range(len(h1)):
     coord.append(h1[i])
 
+
+coord1 = [(1000, 390), (0, 390), (0, 300), (15, 300), (40, 330)]
+
+dx = 0.1
+z2 = []
+for i in range(1000):
+    z2.append((40 + dx, 330 - (- 0.01 * dx * dx + 1.8 * dx)))
+    dx += 0.2
+for i in range(1000):
+    coord1.append(z2[i])
+
+h2 = [(290, 310), (365, 325), (430, 360), (520, 340)]
+for i in range(len(h2)):
+    coord1.append(h2[i])
+
+dx = 0.1
+z3 = []
+for i in range(600):
+    z3.append((520 + dx, 340 - (- 0.01 * dx * dx + 1.8 * dx)))
+    dx += 0.2
+for i in range(600):
+    coord1.append(z3[i])
+
+h3 = [(720, 330), (770, 280), (810, 310), (840, 270), (900, 280), (1000, 220)]
+for i in range(len(h3)):
+    coord1.append(h3[i])
 #
 circle(screen, (255, 145, 0), (733, 119), 15)
 polygon(screen, (255, 145, 0), coord)
+polygon(screen, (161, 43, 7), coord1)
+
 #
 pg.display.update()
 clock = pg.time.Clock()
@@ -55,3 +83,4 @@ while not finished:
 
 pg.quit()
 #
+print(z2[999])
