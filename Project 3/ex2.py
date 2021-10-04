@@ -66,10 +66,80 @@ for i in range(600):
 h3 = [(720, 330), (770, 280), (810, 310), (840, 270), (900, 280), (1000, 220)]
 for i in range(len(h3)):
     coord1.append(h3[i])
+
+coord2 = [(1000, 600), (0, 600), (0, 290), (120, 330), (200, 430)]
+dx = 0.1
+z4 = []
+for i in range(600):
+    z4.append((200 + dx, 430 + (- 0.01 * dx * dx + 2.5 * dx)))
+    dx += 0.2
+for i in range(600):
+    coord2.append(z4[i])
+
+h4 = [(450, 590), (600, 500)]
+for i in range(len(h4)):
+    coord2.append(h4[i])
+
+dx = 0.2
+z4 = []
+for i in range(600):
+    z4.append((600 + dx, 500 + (- 0.005 * dx * dx + 1 * dx)))
+    dx += 0.4
+for i in range(600):
+    coord2.append(z4[i])
+
+dx = 0.2
+z5 = []
+for i in range(600):
+    z5.append((839.5 + dx, 452.3 - (- 0.005 * dx * dx + 1.6 * dx)))
+    dx += 0.4
+for i in range(600):
+    coord2.append(z5[i])
+
+
+def bird(x, y):
+    coord_b = [(x, y), (x + 25, y - 15)]
+    dx1 = 0
+    g = []
+    for k in range(700):
+        g.append((x + 25 - dx1, y - 15 - (- 0.02 * dx1 * dx1 + 0.0005 * dx1)))
+        dx1 += 25 / 700
+    for k in range(700):
+        coord_b.append(g[k])
+
+    hg = [(x - 25, y - 15)]
+    for k in range(len(hg)):
+        coord_b.append(hg[k])
+
+    dx1 = 0
+    g1 = []
+    for k in range(700):
+        g1.append((x - 25 + dx1, y - 15 - (- 0.02 * dx1 * dx1 + 0.0005 * dx1)))
+        dx1 += 25 / 700
+    for k in range(700):
+        coord_b.append(g1[k])
+
+    hg1 = [(x, y)]
+    for k in range(len(hg1)):
+        coord_b.append(hg[k])
+
+    polygon(screen, (0, 0, 0), coord_b)
+
+
 #
 circle(screen, (255, 145, 0), (733, 119), 15)
 polygon(screen, (255, 145, 0), coord)
 polygon(screen, (161, 43, 7), coord1)
+polygon(screen, (19, 18, 33), coord2)
+bird(500, 130)
+bird(500, 250)
+bird(500, 300)
+bird(400, 300)
+bird(420, 240)
+bird(760, 500)
+bird(760, 430)
+bird(670, 465)
+bird(600, 420)
 #
 pg.display.update()
 clock = pg.time.Clock()
@@ -82,3 +152,4 @@ while not finished:
 
 pg.quit()
 #
+print(z4[599])
