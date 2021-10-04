@@ -70,7 +70,6 @@ for i in range(len(h3)):
 circle(screen, (255, 145, 0), (733, 119), 15)
 polygon(screen, (255, 145, 0), coord)
 polygon(screen, (161, 43, 7), coord1)
-
 #
 pg.display.update()
 clock = pg.time.Clock()
@@ -83,4 +82,3 @@ while not finished:
 
 pg.quit()
 #
-print(z2[999])
