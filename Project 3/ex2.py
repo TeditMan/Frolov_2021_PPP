@@ -1,4 +1,3 @@
-import numpy as np
 import pygame as pg
 from pygame.draw import *
 pg.init()
@@ -13,6 +12,8 @@ rect(screen, (255, 203, 183), (0, 130, 1000, 130))
 rect(screen, (249, 215, 148), (0, 260, 1000, 130))
 rect(screen, (195, 152, 145), (0, 390, 1000, 210))
 circle(screen, (255, 239, 0), (500, 130), 60)
+
+
 #
 coord = [(1000, 190), (0, 280), (10, 240)]
 
@@ -40,7 +41,7 @@ h1 = [(745, 112), (790, 150), (830, 140), (870, 160), (910, 145)]
 for i in range(len(h1)):
     coord.append(h1[i])
 
-
+#
 coord1 = [(1000, 390), (0, 390), (0, 300), (15, 300), (40, 330)]
 
 dx = 0.1
@@ -67,7 +68,9 @@ h3 = [(720, 330), (770, 280), (810, 310), (840, 270), (900, 280), (1000, 220)]
 for i in range(len(h3)):
     coord1.append(h3[i])
 
+#
 coord2 = [(1000, 600), (0, 600), (0, 290), (120, 330), (200, 430)]
+
 dx = 0.1
 z4 = []
 for i in range(600):
@@ -95,6 +98,9 @@ for i in range(600):
     dx += 0.4
 for i in range(600):
     coord2.append(z5[i])
+
+
+#
 
 
 def bird(x, y):
@@ -140,6 +146,8 @@ bird(760, 500)
 bird(760, 430)
 bird(670, 465)
 bird(600, 420)
+
+
 #
 pg.display.update()
 clock = pg.time.Clock()
@@ -151,5 +159,3 @@ while not finished:
             finished = True
 
 pg.quit()
-#
-print(z4[599])
