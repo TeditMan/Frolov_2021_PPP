@@ -12,10 +12,21 @@ CYAN = (0, 255, 255)
 BLACK = (0, 0, 0)
 COLORS = [RED, BLUE, YELLOW, GREEN, MAGENTA, CYAN]
 
-FPS = 30
+FPS = 60
 finished = False
 x, y, r, h = 0, 0, 0, 0
 k, i = 0, 0
+lvl = int(input('выберите уровень от 1 до 5: '))
+if lvl == 1:
+    lvl = 120
+elif lvl == 2:
+    lvl = 90
+elif lvl == 3:
+    lvl = 60
+elif lvl == 4:
+    lvl = 40
+elif lvl == 5:
+    lvl = 20
 color = (0, 0, 0)
 dx, dy = randint(-100, 100), randint(-100, 100)
 missed = True
@@ -60,14 +71,12 @@ while not finished:
             finished = True
         elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1 and h < 1:
             if (event.pos[0] - x) ** 2 + (event.pos[1] - y) ** 2 <= r ** 2:
-                print('hit!')
                 i += 1
                 circle(screen, BLACK, (x, y), r)
                 gj(1100, 100)
                 pygame.display.update()
                 moving = False
             else:
-                print('miss!')
                 fail(1100, 100)
                 pygame.display.update()
             h += 1
@@ -83,15 +92,13 @@ while not finished:
             dx = -dx
         if y + r >= screen_height - 2 or y - r <= 2:
             dy = -dy
-    if f == 59:
-        if missed:
-            print('missed')
+    if f == lvl - 1:
         h = 0
         moving = True
         dx, dy = randint(-100, 100), randint(-100, 100)
         screen.fill(BLACK)
     f += 1
-    f %= 60
+    f %= lvl
 
 print('попал', i, 'раз')
 print('всего', k, 'шаров')
