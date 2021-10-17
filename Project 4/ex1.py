@@ -39,7 +39,8 @@ screen = pygame.display.set_mode((screen_length, screen_height))
 pygame.display.update()
 
 
-def new_ball():     # создать новый шар
+def new_ball():
+    """новый шар"""
     global x, y, r, color
     x = randint(100, 1100)
     y = randint(100, 500)
@@ -48,13 +49,15 @@ def new_ball():     # создать новый шар
     circle(screen, color, (x, y), r)
 
 
-def fail(p1, u1):   # нарисовать красный крест
+def fail(p1, u1):
+    """красный крест за промах"""
     a = 30
     line(screen, RED, (p1 - a, u1 + a), (p1 + a, u1 - a), 10)
     line(screen, RED, (p1 + a, u1 + a), (p1 - a, u1 - a), 10)
 
 
 def gj(p1, u1):
+    """зелёная галочка за попадание"""
     a = 30
     line(screen, GREEN, (p1 - a * 2 / 3, u1 - a), (p1, u1 + a), 10)
     line(screen, GREEN, (p1 + a * 2 / 3, u1 - a), (p1, u1 + a), 10)
