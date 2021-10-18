@@ -86,7 +86,6 @@ while not finished:
             missed = False
     if moving is True:
         circle(screen, BLACK, (x, y), r)
-        pygame.display.update()
         x += dx / 50
         y += dy / 50
         circle(screen, color, (x, y), r)
