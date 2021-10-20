@@ -13,138 +13,184 @@ CYAN = (0, 255, 255)
 BLACK = (0, 0, 0)
 colors_list = [RED, BLUE, YELLOW, GREEN, MAGENTA, CYAN]
 
-FPS = 60
+FPS = 120
 finished = False
-k, k1, i, f = 0, 0, 0, 0
-pool, colors, moving, dx, dy = [], [], [], [], []
-pool1, colors1, moving1, dx1, dy1 = [], [], [], [], []
-number_of_balls, number_of_triangles = 0, 0
-lvl = int(input('выберите уровень сложности от 1 до 5: '))
+f = 0
+number_of_balls = 0
+delta = 50
+try_count = 0
+points_count = 0
+bonus_points = 5
+balls_count = 0
+hit = False
+
+# balance of levels
+lvl = int(input('выберите уровень сложности от 1 до 3: '))
 if lvl == 1:
-    lvl = 120
-    number_of_balls = randint(0, 2)
-    number_of_triangles = 2 - number_of_balls
+    lvl = 480
+    number_of_balls = 6
 elif lvl == 2:
-    lvl = 90
-    number_of_balls = randint(0, 4)
-    number_of_triangles = 4 - number_of_balls
+    lvl = 360
+    number_of_balls = 7
 elif lvl == 3:
-    lvl = 60
-    number_of_balls = randint(0, 6)
-    number_of_triangles = 6 - number_of_balls
-elif lvl == 4:
-    lvl = 40
-    number_of_balls = randint(0, 8)
-    number_of_triangles = 8 - number_of_balls
-elif lvl == 5:
-    lvl = 20
-    number_of_balls = randint(0, 10)
-    number_of_triangles = 10 - number_of_balls
+    lvl = 240
+    number_of_balls = 8
+
+
 clock = pygame.time.Clock()
-screen_length = 1200
-screen_height = 600
-screen = pygame.display.set_mode((screen_length, screen_height))
+screen_length = 1366
+screen_height = 768
+screen = pygame.display.set_mode((screen_length, screen_height), pygame.FULLSCREEN)
 pygame.display.update()
 
 
-def new_balls():
-    global pool, colors, moving, dx, dy, k
-    pool = []
-    colors = []
-    moving = []
-    dx = []
-    dy = []
+colors = []
+pool = []
+moving_array = []
+dx = []
+dy = []
+
+
+def generate_arrays_for_balls():
+    global colors, pool, moving_array, dx, dy
     for p in range(number_of_balls):
-        x = randint(100, 1100)
-        y = randint(100, 500)
-        r = randint(10, 100)
         colors.append(colors_list[randint(0, 5)])
-        pool.append([x, y, r])
-        moving.append(True)
+        pool.append([randint(100, 1266), randint(100, 668), randint(20, 100)])
+        moving_array.append(True)
         dx.append(randint(-100, 100))
         dy.append(randint(-100, 100))
-        circle(screen, colors[p], (pool[p][0], pool[p][1]), pool[p][2])
-        k += 1
+
+
+def do_pool_correction():
+    global pool
+    intersection_value = 1
+    while intersection_value > 0:
+        intersection_value = 0
+        for i in range(len(pool)):
+            for k in range(i + 1, len(pool)):
+                if (pool[k][0] - pool[i][0]) ** 2 + (pool[k][1] - pool[i][1]) ** 2 < (pool[k][2] + pool[i][2] + 2) ** 2:
+                    intersection_value += 1
+        if intersection_value > 0:
+            for i in range(len(pool)):
+                pool[i][0] = randint(100, 1100)
+                pool[i][1] = randint(100, 500)
+                pool[i][2] = randint(20, 100)
+
+
+def clear_arrays():
+    global colors, pool, moving_array, dx, dy
+    colors = []
+    pool = []
+    moving_array = []
+    dx = []
+    dy = []
+
+
+def create_balls_from_arrays():
+    for p in range(number_of_balls):
+        circle(screen, colors[p], (pool[p][0], pool[p][1]),
+               pool[p][2])
         pygame.display.update()
 
 
-def new_triangles():
-    global pool1, colors1, moving1, dx1, dy1, k1
-    pool1 = []
-    colors1 = []
-    moving1 = []
-    dx1 = []
-    dy1 = []
-    for p in range(number_of_triangles):
-        x = randint(100, 1100)
-        y = randint(100, 500)
-        r = randint(10, 100)
-        colors1.append(colors_list[randint(0, 5)])
-        pool1.append([x, y, r])
-        moving1.append(True)
-        dx1.append(randint(-100, 100))
-        dy1.append(randint(-100, 100))
-        polygon(screen, colors1[p], [(pool1[p][0], pool1[p][1] - pool1[p][2]),
-                                     (pool1[p][0] + pool1[p][2] * np.sin(np.pi / 3),
-                                      pool1[p][1] + pool1[p][2] * np.cos(np.pi / 3)),
-                                     (pool1[p][0] - pool1[p][2] * np.sin(np.pi / 3),
-                                      pool1[p][1] + pool1[p][2] * np.cos(np.pi / 3))])
-        k1 += 1
-        pygame.display.update()
+def move_balls():
+    for kk in range(number_of_balls):
+        if moving_array[kk] is True:
+            circle(screen, BLACK, (pool[kk][0], pool[kk][1]), pool[kk][2])
+            pool[kk][0] += dx[kk] / delta
+            pool[kk][1] += dy[kk] / delta
+            circle(screen, colors[kk], (pool[kk][0], pool[kk][1]), pool[kk][2])
+            pygame.display.update()
+            if pool[kk][0] + dx[kk] / delta + pool[kk][2] >= screen_length or pool[kk][0] +\
+                    dx[kk] / delta - pool[kk][2] <= 0:
+                dx[kk] = -dx[kk]
+            if pool[kk][1] + dy[kk] / delta + pool[kk][2] >= screen_height or pool[kk][1] +\
+                    dy[kk] / delta - pool[kk][2] <= 0:
+                dy[kk] = -dy[kk]
+            for i in range(kk + 1, number_of_balls):
+                if (pool[i][0] + dx[i] / delta - pool[kk][0] - dx[kk] / delta) ** 2 +\
+                        (pool[i][1] + dy[i] / delta - pool[kk][1] - dy[kk] / delta) ** 2 <\
+                        (pool[i][2] + pool[kk][2]) ** 2 and moving_array[i] is True:
+                    a = pool[i][0] - pool[kk][0]
+                    b = pool[i][1] - pool[kk][1]
+                    c = np.power(a ** 2 + b ** 2, 1 / 2)
+                    s11 = a / c
+                    s21 = b / c
+                    s12 = b / c
+                    s22 = -a / c
+                    dx1 = (s12 * dy[kk] - s22 * dx[kk]) / (s12 * s21 - s11 * s22)
+                    dx2 = (s12 * dy[i] - s22 * dx[i]) / (s12 * s21 - s11 * s22)
+                    dy1 = (s11 * dy[kk] - s21 * dx[kk]) / (s11 * s22 - s12 * s21)
+                    dy2 = (s11 * dy[i] - s21 * dx[i]) / (s11 * s22 - s12 * s21)
+                    dx1_ = ((pool[kk][2] ** 2 - pool[i][2] ** 2) * dx1 + 2 * pool[i][2] ** 2 * dx2) / (
+                                pool[kk][2] ** 2 + pool[i][2] ** 2)
+                    dx2_ = (2 * pool[kk][2] ** 2 * dx1 + (pool[i][2] ** 2 - pool[kk][2] ** 2) * dx2) / (
+                                pool[kk][2] ** 2 + pool[i][2] ** 2)
+                    dy1_ = dy1
+                    dy2_ = dy2
+                    dx_kk = s11 * dx1_ + s12 * dy1_
+                    dy_kk = s21 * dx1_ + s22 * dy1_
+                    dx_i = s11 * dx2_ + s12 * dy2_
+                    dy_i = s21 * dx2_ + s22 * dy2_
+                    dx[kk] = dx_kk
+                    dy[kk] = dy_kk
+                    dx[i] = dx_i
+                    dy[i] = dy_i
 
 
 while not finished:
     clock.tick(FPS)
+#
     if f == 0:
-        new_balls()
-#        new_triangles()
+        generate_arrays_for_balls()
+        do_pool_correction()
+        create_balls_from_arrays()
+#
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             finished = True
         elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
             for o in range(number_of_balls):
-                if (event.pos[0] - pool[o][0]) ** 2 + (event.pos[1] - pool[o][1]) ** 2 <= pool[o][2] ** 2:
-                    i += 1
+                if (event.pos[0] - pool[o][0]) ** 2 + (event.pos[1] - pool[o][1]) ** 2 <= pool[o][2] ** 2 and\
+                        moving_array[o] is True:
                     circle(screen, BLACK, (pool[o][0], pool[o][1]), pool[o][2])
-                    moving[o] = False
+                    moving_array[o] = False
+                    if pool[o][2] <= 40:
+                        points_count += 4
+                    elif 40 < pool[o][2] <= 60:
+                        points_count += 3
+                    elif 60 < pool[o][2] <= 80:
+                        points_count += 2
+                    elif 80 < pool[o][0]:
+                        points_count += 1
+                    balls_count += 1
+                    hit = True
                     pygame.display.update()
-#                """elif ... условие попадания в треугольник"""
-    for o in range(number_of_balls):
-        if moving[o] is True:
-            circle(screen, BLACK, (pool[o][0], pool[o][1]), pool[o][2])
-            pool[o][0] += dx[o] / 50
-            pool[o][1] += dy[o] / 50
-            circle(screen, colors[o], (pool[o][0], pool[o][1]), pool[o][2])
-            pygame.display.update()
-            if pool[o][0] + pool[o][2] >= screen_length - 2 or pool[o][0] - pool[o][2] <= 2:
-                dx[o] = -dx[o]
-            if pool[o][1] + pool[o][2] >= screen_height - 2 or pool[o][1] - pool[o][2] <= 2:
-                dy[o] = -dy[o]
-#    for o in range(number_of_triangles):
-#        if moving1[o] is True:
-#            polygon(screen, BLACK, [(pool1[o][0], pool1[o][1] - pool1[o][2]),
-#                                    (pool1[o][0] + pool1[o][2] * np.sin(np.pi / 3),
-#                                    pool1[o][1] + pool1[o][2] * np.cos(np.pi / 3)),
-#                                    (pool1[o][0] - pool1[o][2] * np.sin(np.pi / 3),
-#                                    pool1[o][1] + pool1[o][2] * np.cos(np.pi / 3))])
-#            pool1[o][0] += dx1[o] / 50
-#            pool1[o][1] += dy1[o] / 50
-#            polygon(screen, colors1[o], [(pool1[o][0], pool1[o][1] - pool1[o][2]),
-#                                         (pool1[o][0] + pool1[o][2] * np.sin(np.pi / 3),
-#                                          pool1[o][1] + pool1[o][2] * np.cos(np.pi / 3)),
-#                                         (pool1[o][0] - pool1[o][2] * np.sin(np.pi / 3),
-#                                          pool1[o][1] + pool1[o][2] * np.cos(np.pi / 3))])
+            if hit is False:
+                points_count -= 1
+        elif event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
+            finished = True
+        elif try_count == 20:
+            finished = True
+#
+    move_balls()
+#
+#    if f == lvl - 20:
+#        for ii in range(number_of_balls):
+#            moving_array[ii] = False
+#            screen.fill(BLACK)
 #            pygame.display.update()
-#            if pool1[o][0] + pool1[o][2] >= screen_length - 2 or pool1[o][0] - pool1[o][2] <= 2:
-#                dx1[o] = -dx1[o]
-#            if pool1[o][1] + pool1[o][2] >= screen_height - 2 or pool1[o][1] - pool1[o][2] <= 2:
-#                dy1[o] = -dy1[o]
-    if f == lvl - 1:
-        screen.fill(BLACK)
+#    elif f == lvl - 1:
+#        clear_arrays()
+#        if number_of_balls == balls_count:
+#            points_count += bonus_points
+#            print('bonus!')
+#        balls_count = 0
+#        hit = False
+#        try_count += 1
     f += 1
-    f %= lvl
+#    f %= lvl
 
-print('попал', i, 'раз')
-print('всего', k, 'шаров')
-print('доля попаданий:', i / k)
+print('количество очков: ', points_count)
+
 pygame.quit()
