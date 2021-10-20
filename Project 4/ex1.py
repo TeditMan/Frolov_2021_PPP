@@ -14,37 +14,34 @@ COLORS = [RED, BLUE, YELLOW, GREEN, MAGENTA, CYAN]
 
 FPS = 60
 finished = False
+try_count = 0
 x, y, r, h = 0, 0, 0, 0
 k, i = 0, 0
-lvl = int(input('выберите уровень от 1 до 5: '))
+lvl = int(input('выберите уровень от 1 до 3: '))
 if lvl == 1:
-    lvl = 120
+    lvl = 80
 elif lvl == 2:
-    lvl = 90
-elif lvl == 3:
     lvl = 60
-elif lvl == 4:
+elif lvl == 3:
     lvl = 40
-elif lvl == 5:
-    lvl = 20
 color = (0, 0, 0)
 dx, dy = randint(-100, 100), randint(-100, 100)
 missed = True
 moving = True
 f = 0
 clock = pygame.time.Clock()
-screen_length = 1200
-screen_height = 600
-screen = pygame.display.set_mode((screen_length, screen_height))
+screen_length = 1366
+screen_height = 768
+screen = pygame.display.set_mode((screen_length, screen_height), pygame.FULLSCREEN)
 pygame.display.update()
 
 
 def new_ball():
     """новый шар"""
     global x, y, r, color
-    x = randint(100, 1100)
-    y = randint(100, 500)
-    r = randint(10, 100)
+    x = randint(100, 1266)
+    y = randint(100, 668)
+    r = randint(25, 75)
     color = COLORS[randint(0, 5)]
     circle(screen, color, (x, y), r)
 
@@ -71,6 +68,10 @@ while not finished:
         k += 1
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
+            finished = True
+        elif event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
+            finished = True
+        elif try_count == 100:
             finished = True
         elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1 and h < 1:
             if (event.pos[0] - x) ** 2 + (event.pos[1] - y) ** 2 <= r ** 2:
@@ -99,10 +100,11 @@ while not finished:
         moving = True
         dx, dy = randint(-100, 100), randint(-100, 100)
         screen.fill(BLACK)
+        try_count += 1
     f += 1
     f %= lvl
 
 print('попал', i, 'раз')
-print('всего', k, 'шаров')
-print('доля попаданий:', i / k)
+print('всего', k - 1, 'шаров')
+print('доля попаданий:', i / (k - 1))
 pygame.quit()

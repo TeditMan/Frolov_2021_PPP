@@ -16,16 +16,35 @@ colors_list = [RED, BLUE, YELLOW, GREEN, MAGENTA, CYAN]
 FPS = 120
 finished = False
 f = 0
-number_of_balls = 0
 delta = 50
 try_count = 0
 points_count = 0
 bonus_points = 5
 balls_count = 0
 hit = False
+array_of_points = []
+# lvl = int(input('выберите уровень сложности от 1 до 3: '))
+lvl = 300
+number_of_balls = 8
 
+# авторизация, добавление новых игроков в таблицу
+nickname = str(input('Введите ваш никнейм, или придумайте новый: '))
+with open('Table.txt', 'r') as file:
+    inp = file.read().split('\n')
+    registered = False
+    for k1 in range(len(inp)):
+        if inp[k1].split()[2] == nickname:
+            registered = True
+if registered is False:
+    with open('Table.txt', 'a') as file:
+        new_string = str('\n' + str(len(inp) + 1) + ' - ' + nickname + ' : ' + str(0))
+        file.write(new_string)
+# обновление переменной inp - массив из строк таблицы лидеров
+with open('Table.txt', 'r') as file:
+    inp = file.read().split('\n')
+
+"""
 # balance of levels
-lvl = int(input('выберите уровень сложности от 1 до 3: '))
 if lvl == 1:
     lvl = 480
     number_of_balls = 6
@@ -35,7 +54,7 @@ elif lvl == 2:
 elif lvl == 3:
     lvl = 240
     number_of_balls = 8
-
+"""
 
 clock = pygame.time.Clock()
 screen_length = 1366
@@ -149,6 +168,10 @@ while not finished:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             finished = True
+        elif event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
+            finished = True
+        elif try_count == 20:
+            finished = True
         elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
             for o in range(number_of_balls):
                 if (event.pos[0] - pool[o][0]) ** 2 + (event.pos[1] - pool[o][1]) ** 2 <= pool[o][2] ** 2 and\
@@ -168,29 +191,55 @@ while not finished:
                     pygame.display.update()
             if hit is False:
                 points_count -= 1
-        elif event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
-            finished = True
-        elif try_count == 20:
-            finished = True
 #
     move_balls()
 #
-#    if f == lvl - 20:
-#        for ii in range(number_of_balls):
-#            moving_array[ii] = False
-#            screen.fill(BLACK)
-#            pygame.display.update()
-#    elif f == lvl - 1:
-#        clear_arrays()
-#        if number_of_balls == balls_count:
-#            points_count += bonus_points
-#            print('bonus!')
-#        balls_count = 0
-#        hit = False
-#        try_count += 1
+    if f == lvl - 20:
+        for ii in range(number_of_balls):
+            moving_array[ii] = False
+            screen.fill(BLACK)
+            pygame.display.update()
+    elif f == lvl - 1:
+        clear_arrays()
+        if number_of_balls == balls_count:
+            points_count += bonus_points
+        balls_count = 0
+        hit = False
+        try_count += 1
     f += 1
-#    f %= lvl
+    f %= lvl
 
+# обновление таблицы лидеров, упорядочивание таблицы
+with open('Table.txt', 'w') as file:
+    for k1 in range(len(inp)):
+        if inp[k1].split()[2] == nickname and int(inp[k1].split()[4]) < points_count:
+            a1 = inp[k1].split()
+            a1[4] = str(points_count)
+            inp[k1] = ' '.join(a1)
+    for k1 in range(len(inp)):
+        array_of_points.append(int(inp[k1].split()[4]))
+    file.write('\n'.join(inp))
+
+with open('Table.txt', 'r') as file:
+    inp = file.read().split('\n')
+length = len(inp)
+inp1 = []
+for l1 in range(length):
+    count = 0
+    k1 = -1
+    while count < len(inp):
+        count = 0
+        k1 += 1
+        for i1 in range(len(inp)):
+            if int(inp[k1].split()[4]) >= int(inp[i1].split()[4]):
+                count += 1
+    inp1.append(inp[k1])
+    inp.pop(k1)
+for l1 in range(len(inp1)):
+    inp1[l1] = str(str(l1 + 1) + ' - ' + inp1[l1].split()[2] + ' : ' + inp1[l1].split()[4])
+with open('Table.txt', 'w') as file:
+    file.write('\n'.join(inp1))
+
+# завершение программы
 print('количество очков: ', points_count)
-
 pygame.quit()
