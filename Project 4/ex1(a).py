@@ -216,6 +216,9 @@ with open('Table.txt', 'w') as file:
             a1 = inp[k1].split()
             a1[4] = str(points_count)
             inp[k1] = ' '.join(a1)
+            print('new record!')
+        elif inp[k1].split()[2] == nickname and int(inp[k1].split()[4]) >= points_count:
+            print('current record: ', inp[k1].split()[4])
     for k1 in range(len(inp)):
         array_of_points.append(int(inp[k1].split()[4]))
     file.write('\n'.join(inp))
