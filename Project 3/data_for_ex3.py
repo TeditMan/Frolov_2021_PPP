@@ -150,7 +150,7 @@ pygame.display.update()
 
 finished = False
 
-while True:
+while not finished:
     clock.tick(fps)
     for event in pygame.event.get():
         if event.type == pygame.QUIT:

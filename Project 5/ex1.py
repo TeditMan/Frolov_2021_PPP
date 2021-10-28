@@ -4,7 +4,7 @@ from random import randint as rnd
 import pygame
 
 
-FPS = 30
+FPS = 60
 
 RED = 0xFF0000
 BLUE = 0x0000FF
@@ -16,7 +16,7 @@ BLACK = (0, 0, 0)
 WHITE = 0xFFFFFF
 GREY = 0x7D7D7D
 GAME_COLORS = [RED, BLUE, YELLOW, GREEN, MAGENTA, CYAN]
-g = 9.8
+g = 1
 WIDTH = 800
 HEIGHT = 600
 
@@ -46,12 +46,21 @@ class Ball:
         и стен по краям окна (размер окна 800х600).
         """
         self.x += self.vx
-        self.y = self.y - self.vy + g / 2
-        self.vy -= g
-        if self.x > WIDTH or self.x < 0:
-            self.vx = - self.vx
-        if self.y > HEIGHT or self.y < 0:
-            self.vy = - self.vy
+        self.vx *= 0.99
+        self.y = self.y + ((self.vy + g) ** 2 - self.vy ** 2) / 2 * g
+        self.vy += g
+        if self.x + self.r > WIDTH:
+            self.vx = - 0.5 * self.vx
+            self.x = WIDTH - self.r
+        if self.x - self.r < 0:
+            self.vy = - 0.5 * self.vy
+            self.x = self.r
+        if self.y + self.r > HEIGHT:
+            self.vy = - 0.5 * self.vy
+            self.y = HEIGHT - self.r
+        if self.y - self.r < 0:
+            self.vy = - 0.5 * self.vy
+            self.y = self.r
 
     def draw(self):
         pygame.draw.circle(
@@ -76,18 +85,17 @@ class Ball:
 
 
 class Gun:
-    def __init__(self, screen1):
-        self.x = 10
-        self.y = 550
-        self.screen = screen1
-        self.f2_power = 10
-        self.f2_on = 0
+    def __init__(self, screen1, x=10, y=550):
+        self.x = x
+        self.y = y
+        self.pulse = 10
+        self.pulling_value = 0
         self.an = np.pi / 2
         self.color = GREY
+        self.screen = screen1
 
-    def fire2_start(self, event1):
-        if event1:
-            self.f2_on = 1
+    def fire2_start(self):
+        self.pulling_value = 1
 
     def fire2_end(self, event1):
         """Выстрел мячом.
@@ -98,31 +106,37 @@ class Gun:
         global balls, bullet
         bullet += 1
         new_ball = Ball(self.screen)
-        new_ball.r += 5
-        self.an = np.arctan2((event1.pos[1]-new_ball.y), (event1.pos[0]-new_ball.x))
-        new_ball.vx = self.f2_power * np.cos(self.an)
-        new_ball.vy = - self.f2_power * np.sin(self.an)
+        self.an = np.arctan((new_ball.y - event1.pos[1]) / (event1.pos[0] - new_ball.x))
+        new_ball.vx = self.pulse * np.cos(self.an) / 5
+        new_ball.vy = - self.pulse * np.sin(self.an)
         balls.append(new_ball)
-        self.f2_on = 0
-        self.f2_power = 10
+        self.pulling_value = 0
+        self.pulse = 10
 
     def targeting(self, event1):
         """Прицеливание. Зависит от положения мыши."""
         if event1:
             self.an = np.arctan((event1.pos[1]-450) / (event1.pos[0]-20))
-        if self.f2_on:
+        if self.pulling_value:
             self.color = RED
         else:
             self.color = GREY
 
     def draw(self):
-        pygame.draw.line(self.screen, self.color, (self.x, self.y), (self.x + np.cos(self.an) * (50 + self.f2_power),
-                                                                     self.y + np.sin(self.an) * (50 + self.f2_power)), 15)
+        pygame.draw.polygon(self.screen, self.color, [
+            (self.x, self.y),
+            (self.x + (self.pulse + 50) * np.cos(self.an), self.y - (self.pulse + 50) * np.sin(self.an)),
+            (self.x + (self.pulse + 50) * np.cos(self.an)) - 20 * np.sin(self.an),
+            self.y - (self.pulse + 50) * np.sin(self.an) - 20 * np.cos(self.an)
+            (self.x - 20 * np.sin(self.an), self.y - 20 * np.cos(self.an))
+        ])
+        # pygame.draw.line(self.screen, self.color, (self.x, self.y), (self.x + np.cos(self.an) * (50 + self.pulse),
+        #                                                              self.y + np.sin(self.an) * (50 + self.pulse)), 15)
 
     def power_up(self):
-        if self.f2_on:
-            if self.f2_power < 100:
-                self.f2_power += 1
+        if self.pulling_value:
+            if self.pulse < 100:
+                self.pulse += 1
             self.color = RED
         else:
             self.color = GREY
@@ -172,11 +186,12 @@ while not finished:
     pygame.display.update()
 
     clock.tick(FPS)
+    gun.power_up()
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             finished = True
         elif event.type == pygame.MOUSEBUTTONDOWN:
-            gun.fire2_start(event)
+            gun.fire2_start()
         elif event.type == pygame.MOUSEBUTTONUP:
             gun.fire2_end(event)
         elif event.type == pygame.MOUSEMOTION:
@@ -188,5 +203,4 @@ while not finished:
             target.live = 0
             target.hit()
             target.new_target()
-    gun.power_up()
 pygame.quit()
